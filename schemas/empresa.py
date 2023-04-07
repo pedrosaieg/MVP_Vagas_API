@@ -24,6 +24,11 @@ class EmpresaViewSchema(BaseModel):
     link:str = "www.xpto.com.br"
     tamanho:int = 200
 
+class ListagemEmpresasSchema(BaseModel):
+    """ Define como a lista de empresas será retornada.
+    """
+    empresas:list[EmpresaSchema]
+
 def apresenta_empresa(empresa: Empresa):
     """ Retorna uma representação da empresa seguindo o schema definido em
         EmpresaViewSchema.
@@ -36,3 +41,21 @@ def apresenta_empresa(empresa: Empresa):
         "link": empresa.link,
         "tamanho": empresa.tamanho
     }
+
+def apresenta_empresas(empresas: List[Empresa]):
+    """ Retorna uma representação do produto seguindo o schema definido em
+        ProdutoViewSchema.
+    """
+    result = []
+    for empresa in empresas:
+        result.append({
+            "id": empresa.id,
+            "nome": empresa.nome,
+            "ramo_atuacao": empresa.ramo_atuacao,
+            "sobre": empresa.sobre,
+            "link": empresa.link,
+            "tamanho": empresa.tamanho,
+            "vagas" : len(empresa.vagas)
+        })
+
+    return {"empresas": result}
