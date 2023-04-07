@@ -30,12 +30,11 @@ class Empresa(Base):
             tamanho: número médio de funcionários
             data_insercao: data de quando o produto foi inserido à base
         """
-        self.id
-        self.nome
-        self.ramo_atuacao
-        self.sobre
-        self.link
-        self.tamanho
+        self.nome = nome
+        self.ramo_atuacao = ramo_atuacao
+        self.sobre = sobre
+        self.link = link
+        self.tamanho = tamanho
 
         # se não for informada, será o data exata da inserção no banco
         if data_insercao:
