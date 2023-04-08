@@ -18,7 +18,7 @@ empresa_tag = Tag(name="Empresa", description="Adição, visualização e remoç
 @app.post('/empresa', tags=[empresa_tag],
            responses={"200": EmpresaViewSchema, "409": ErrorSchema, "400": ErrorSchema})
 def add_empresa(form: EmpresaSchema):
-    """Adiciona uma nova Empresa à base de dados
+    """Adiciona uma nova empresa à base de dados
 
     Retorna uma representação das empresas.
     """
@@ -70,3 +70,76 @@ def get_empresas():
     else:
         logger.debug(f'%d empresas encontradas' % len(empresas))
         return apresenta_empresas(empresas), 200
+    
+@app.get('/empresa', tags=[empresa_tag],
+         responses={"200": EmpresaViewSchema, "404": ErrorSchema})
+def get_empresa(query: EmpresaBuscaSchema):
+    """Faz a busca por uma empresa a partir do id da empresa
+    
+    Retorna uma representação empresa.
+    """
+    empresa_id = query.id
+    logger.debug(f"Coletando dados sobre a empresa #{empresa_id}")
+
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    empresa = session.query(Empresa).filter(Empresa.id == empresa_id).first()
+
+    if not empresa:
+        error_msg = "Empresa não encontrada na base."
+        return {"message": error_msg}, 404
+    else:
+        logger.debug(f'%Empresa {empresa_id} encontrada')
+        return apresenta_empresa(empresa), 200
+    
+
+@app.delete('/empresa', tags=[empresa_tag],
+         responses={"200": EmpresaDelSchema, "404": ErrorSchema})
+def delete_empresa(query: EmpresaBuscaSchema):
+    """Deleta uma empresa a partir do id informado
+    
+    Retorna uma mensagem de confirmação da remoção.
+    """
+    empresa_id = query.id
+    logger.debug(f"Deletando dados sobre a empresa #{empresa_id}")
+
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    empresa = session.query(Empresa).filter(Empresa.id == empresa_id).delete()
+    session.commit()
+
+    if not empresa:
+        error_msg = "Empresa não encontrada na base."
+        return {"message": error_msg}, 404
+    else:
+        logger.debug(f'%Empresa {empresa_id} removida.')
+        return {"message": f"Empresa {empresa_id} removida."}, 200
+    
+
+@app.put('/empresa', tags=[empresa_tag],
+         responses={"200": EmpresaViewSchema, "404": ErrorSchema})
+def edit_empresa(query: EmpresaEditSchema):
+    """Edita uma empresa a partir do id informado
+    
+    Retorna uma mensagem de confirmação da remoção.
+    """
+    empresa_id = query.id
+
+    logger.debug(f"Editando dados sobre a empresa #{empresa_id}")
+
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    empresa = session.query(Empresa).filter(Empresa.id == empresa_id).update({"nome":query.nome, "ramo_atuacao": query.ramo_atuacao, "sobre": query.sobre, "link": query.link, "tamanho": query.tamanho})
+
+    session.commit()
+
+    if not empresa:
+        error_msg = "Empresa não encontrada na base."
+        return {"message": error_msg}, 404
+    else:
+        empresa_editada = session.query(Empresa).filter(Empresa.id == empresa_id).first()
+        logger.debug(f'%Empresa {empresa_id} editada.')
+        return apresenta_empresa(empresa_editada), 200

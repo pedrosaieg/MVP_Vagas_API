@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 from sqlalchemy.exc import IntegrityError
 
-from schemas.vaga import apresenta_vaga
+from schemas.vaga import apresenta_vaga, apresenta_vagas
 
 from app import app
 
@@ -62,3 +62,68 @@ def add_vaga(form: VagaSchema):
         error_msg = "Não foi possível salvar novo item :/"
         logger.warning(f"Erro ao adicionar vaga '{vaga.cargo}', {error_msg}")
         return {"mesage": error_msg}, 400
+    
+@app.get('/vaga', tags=[vaga_tag],
+        responses={"200": VagaViewSchema, "404": ErrorSchema})
+def get_vaga(query: VagaBuscaSchema):
+    """Faz a busca por uma vaga com base no id
+    
+    Retorna uma representação da vaga.
+    """
+    vaga_id = query.id
+    logger.debug(f"Coletando dados sobre a empresa #{vaga_id}")
+
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    vaga = session.query(Vaga).filter(Vaga.id == vaga_id).first()
+
+    if not vaga:
+        error_msg = "Vaga não encontrada na base."
+        return {"message": error_msg}, 404
+    else:
+        logger.debug(f'%Vaga {vaga_id} encontrada')
+        return apresenta_vaga(vaga), 200
+    
+@app.get('/vagas', tags=[vaga_tag],
+        responses={"200": ListagemVagasSchema, "404": ErrorSchema})
+def get_vagas():
+    """Faz a busca por todas as vagas cadastradas
+    
+    Retorna uma representação da listagem de vagas.
+    """
+    logger.debug(f"Coletando vagas.")
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    vagas = session.query(Vaga).all()
+
+    if not vagas:
+        return {"vagas": []}, 200
+    else:
+        logger.debug(f'%d vagas encontradas' % len(vagas))
+        return apresenta_vagas(vagas), 200
+   
+@app.delete('/vaga', tags=[vaga_tag],
+            responses={"200": VagaDelSchema, "404": ErrorSchema})
+def del_vaga(query: VagaBuscaSchema):
+    """Deleta uma vaga a partir do id informado
+
+    Retorna uma mensagem de confirmação da remoção.
+    """
+    vaga_id = query.id
+    logger.debug(f"Deletando dados sobre a vaga #{vaga_id}")
+
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    vaga = session.query(Vaga).filter(Vaga.id == vaga_id).delete()
+    session.commit()
+
+    if not vaga:
+        error_msg = "Vaga não encontrada na base."
+        return {"message": error_msg}, 404
+    else:
+        logger.debug(f'%Vaga {vaga_id} removida.')
+        return {"message": f"Vaga {vaga_id} removida."}, 200
+

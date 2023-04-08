@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from schemas import vaga, empresa
 from flask_cors import CORS
 
-info = Info(title="Minha API", version="1.0.0")
+info = Info(title="API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 CORS(app)
 
