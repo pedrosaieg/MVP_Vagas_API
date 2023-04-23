@@ -43,7 +43,7 @@ class EmpresaDelSchema(BaseModel):
 class EmpresaEditSchema(BaseModel):
     """ Define como uma empresa será editada.
     """
-    id: int = 1
+    id:int = 1
     nome:str = "XPTO"
     ramo_atuacao:str = "Óleo e gás"
     sobre:str = "Empresa que atua no ramo de upstream"
@@ -66,7 +66,13 @@ def apresenta_empresa(empresa: Empresa):
         "sobre": empresa.sobre,
         "link": empresa.link,
         "tamanho": empresa.tamanho,
-        "vagas": [{"vaga": c.cargo} for c in empresa.vagas]
+        "vagas": [{"id": c.id, 
+                   "cargo": c.cargo, 
+                   "conhecimentos": c.conhecimentos, 
+                   "descricao": c.descricao, 
+                   "responsabilidades": c.responsabilidades, 
+                   "modalidade_contrato" : c.modalidade_contrato, 
+                   "modalidade_trabalho" : c.modalidade_trabalho} for c in empresa.vagas]
     }
 
 def apresenta_empresas(empresas: List[Empresa]):

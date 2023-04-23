@@ -1,5 +1,5 @@
 from flask_openapi3 import OpenAPI, Info, Tag
-from flask import redirect
+from flask import redirect, request
 from urllib.parse import unquote
 
 from models import Session, Empresa
@@ -118,21 +118,22 @@ def delete_empresa(query: EmpresaBuscaSchema):
         return {"message": f"Empresa {empresa_id} removida."}, 200
     
 
-@app.put('/empresa', tags=[empresa_tag],
+@app.put('/empresa/', tags=[empresa_tag],
          responses={"200": EmpresaViewSchema, "404": ErrorSchema})
-def edit_empresa(query: EmpresaEditSchema):
+def edit_empresa(form: EmpresaEditSchema):
     """Edita uma empresa a partir do id informado
     
-    Retorna uma mensagem de confirmação da remoção.
+    Retorna uma mensagem de confirmação da edição.
     """
-    empresa_id = query.id
+    empresa_id = form.id
+    print(form)
 
     logger.debug(f"Editando dados sobre a empresa #{empresa_id}")
 
     # criando conexão com a base
     session = Session()
     # fazendo a busca
-    empresa = session.query(Empresa).filter(Empresa.id == empresa_id).update({"nome":query.nome, "ramo_atuacao": query.ramo_atuacao, "sobre": query.sobre, "link": query.link, "tamanho": query.tamanho})
+    empresa = session.query(Empresa).filter(Empresa.id == empresa_id).update({"nome":form.nome, "ramo_atuacao": form.ramo_atuacao, "sobre": form.sobre, "link": form.link, "tamanho": form.tamanho})
 
     session.commit()
 
