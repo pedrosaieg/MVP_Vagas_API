@@ -31,7 +31,7 @@ def add_vaga(form: VagaSchema):
         error_msg = "Empresa não encontrada na base :/"
         logger.warning(f"Erro ao criar vaga à empresa'{empresa_id}', {error_msg}")
         return {"mesage": error_msg}, 404
-
+    print(form)
     vaga = Vaga(
        cargo = form.cargo,
        modalidade_contrato = form.modalidade_contrato,
